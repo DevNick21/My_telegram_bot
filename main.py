@@ -40,13 +40,21 @@ async def jokes(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 def handle_response(text: str) -> str:
     processed: str = text.lower()
-    if "hello" in processed:
-        return "Hello"
+    if "hello" or "hi" or "hey" in processed:
+        return "Hi there! How can I assist you today?"
     if "howdy" in processed:
-        return "Howdy"
-    if "jokes" in processed:
+        return "Howdy Partner! What can I help you with?"
+    if "good morning" in processed:
+        return "Good morning! What can I do for you today?"
+    if "good afternoon" in processed:
+        return "Good afternoon! How can I assist you?"
+    if "good day" in processed:
+        return "Good day! How can I be of help to you today?"
+    if "good evening" in processed:
+        return "Good evening! How may I be of assistance?"
+    if "jokes" or "joke" in processed:
         return f"{the_joke()}"
-    if "anotherjokes" in processed.strip():
+    if "anotherjoke" in processed.strip():
         return f"{the_joke()}"
     return "i don't understand"
 
