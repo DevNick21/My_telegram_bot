@@ -1,19 +1,32 @@
 import requests
 import os
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
-from telegram import Update
+import logging
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes, Updater
+from telegram import Update, Bot
 from dotenv import load_dotenv
+from jokes import Jokes
 load_dotenv()
 
 TOKEN = os.getenv("telegram_api_key")
 BOT_USERNAME = os.getenv("telegram_bot_username")
 
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.INFO
+)
+
 # Commands for the bot
+
+
+def the_joke():
+    joke = Jokes()
+    the_joke = joke.generate_normal_jokes()
+    return the_joke
 
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        "Hello! Welcome to Nicholas's bot!\nIt is still in development though but i hope you are excited to use it")
+        "Hello! Welcome to Nicholas's bot!\nIt is still in development though but i hope you are excited to use it\nType 'jokes'")
 
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -21,9 +34,8 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "Just testing")
 
 
-async def test(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(
-        "Just testing")
+async def jokes(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(the_joke())
 
 
 def handle_response(text: str) -> str:
@@ -32,6 +44,10 @@ def handle_response(text: str) -> str:
         return "Hello"
     if "howdy" in processed:
         return "Howdy"
+    if "jokes" in processed:
+        return f"{the_joke()}"
+    if "anotherjokes" in processed.strip():
+        return f"{the_joke()}"
     return "i don't understand"
 
 
@@ -46,7 +62,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             new_text: str = text.replace(BOT_USERNAME, '').strip()
             response: str = handle_response(new_text)
         else:
-            return None
+            return
     else:
         response: str = handle_response(text)
 
@@ -66,7 +82,7 @@ if __name__ == "__main__":
     # Commands
     app.add_handler(CommandHandler("start", start_command))
     app.add_handler(CommandHandler("help", help_command))
-    app.add_handler(CommandHandler("test", test))
+    app.add_handler(CommandHandler("joke", jokes))
 
     # Messages
     app.add_handler(MessageHandler(filters.TEXT, handle_message))
