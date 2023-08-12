@@ -56,32 +56,6 @@ async def bundesliga_table(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(football.get_table(football.BUNDESLIGA))
 
 
-def handle_fixture_response(text: str):
-    processed: str = text.lower()
-
-    for footy_response in football_keywords_fixtures:
-        if footy_response and "premier league" in processed:
-            return f"{football.get_fixtures(football.PL)}"
-        elif footy_response and "champions league" in processed:
-            return f"{football.get_fixtures(football.UCL)}"
-        elif footy_response and "ucl" in processed:
-            return f"{football.get_fixtures(football.UCL)}"
-        elif footy_response and "la liga" in processed:
-            return f"{football.get_fixtures(football.LA_LIGA)}"
-        elif footy_response and "serie a" in processed:
-            return f"{football.get_fixtures(football.SERIE_A)}"
-        elif footy_response and "bundesliga" in processed:
-            return f"{football.get_fixtures(football.BUNDESLIGA)}"
-        elif footy_response and "efl" in processed:
-            return f"{football.get_fixtures(football.EFL)}"
-        elif footy_response and "carabao" in processed:
-            return f"{football.get_fixtures(football.EFL)}"
-        elif footy_response and "europa" in processed:
-            return f"{football.get_fixtures(football.EUROPA)}"
-        elif footy_response and "fa cup" in processed:
-            return f"{football.get_fixtures(football.FA_CUP)}"
-
-
 def handle_response(text: str):
     processed: str = text.lower()
     football_keywords_fixtures = ["matches", "match", "schedule",
