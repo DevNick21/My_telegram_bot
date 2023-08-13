@@ -5,8 +5,15 @@ import pandas
 from dotenv import load_dotenv
 load_dotenv()
 
+year = int(dt.now().strftime("%Y"))
+month = int(dt.now().strftime("%m"))
+if month < 6:
+    year += 1
+year = str(year)
+
 
 day = dt.now().strftime("%Y-%m-%d")
+
 
 headers = {
     "X-RapidAPI-Key": os.getenv("X-RapidAPI-Key"),
@@ -24,7 +31,7 @@ class Football:
         self.FA_CUP = 45
         self.EUROPA = 3
         self.UCL = 2
-        self.SEASON = "2023"
+        self.SEASON = year
         self.FOOTBAL_URL = "https://api-football-v1.p.rapidapi.com/v3/"
 
     def get_fixtures(self, league):
@@ -75,16 +82,10 @@ class Football:
                 team_name = team_name.replace("Crystal", "")
             elif "Sheffield Utd" in team_name:
                 team_name = team_name.replace("Sheffield Utd", "Sheffield")
-            elif "Bournemouth" in team_name:
-                team_name = team_name.replace("Bournemouth", "BOU")
-            elif "Atletico Madrid" in team_name:
-                team_name = team_name.replace("Atletico Madrid", "ATM")
             elif "Rayo Vallecano" in team_name:
                 team_name = team_name.replace("Rayo Vallecano", "Rayo")
             elif "Real Sociedad" in team_name:
                 team_name = team_name.replace("Real Sociedad", "Sociedad")
-            elif "Real Madrid" in team_name:
-                team_name = team_name.replace("Real Madrid", "Madrid")
             elif "Borussia Dortmund" in team_name:
                 team_name = team_name.replace("Borussia Dortmund", "Dortmund")
             elif "Union Berlin" in team_name:
@@ -119,7 +120,7 @@ class Football:
             match_lost = team["all"]["lose"]
             goals_for = team["all"]["goals"]["for"]
             goals_against = team["all"]["goals"]["against"]
-            d = {"Club": team_name, "P": match_played, "W": match_won, "D": match_draw,
+            d = {"Team": team_name, "P": match_played, "W": match_won, "D": match_draw,
                  "L": match_lost, "+": goals_for, "-": goals_against, "GD": goal_diff, "PTS": team_points}
             df = pandas.DataFrame(data=d, index=[rank])
             combined_df.append(df)

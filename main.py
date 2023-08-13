@@ -62,8 +62,8 @@ def handle_response(text: str):
                                   "fixtures", "next match", "next game", "today match", "today game"]
     greeting_keywords = ["greetings", "hello", "hi", "good morning",
                          "good evening", "good afternoon", "howdy", "hey"]
-    jokes_keywords = ["joke", "a joke", "another joke", "tell me a joke", "crack a joke",
-                      "give me a good joke", "i wan laugh abeg", "make I laugh small", "abeg, yarn me joke", "wetin dey funny"]
+    jokes_keywords = ["joke", "jokes", "a joke", "another joke", "tell me a joke", "crack a joke",
+                      "give me a good joke", "i wan laugh", "make i laugh small", "abeg yarn me joke", "wetin dey funny", "wey go burst my belle", "Laugh dey hungry me", "say something funny",]
 
     football_keywords_standings = ["league position", "standings",
                                    "table", "top of the league", "teams", "first place", "bottom of the league", "bottom league"]
