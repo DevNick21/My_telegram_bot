@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
-TOKEN = os.getenv("TOKEN")
+TOKEN = os.getenv("telegram_api_key")
 CHAT_ID = os.getenv("CHAT_ID")
 
 
