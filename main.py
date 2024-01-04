@@ -1,6 +1,7 @@
 import requests
 import os
 import logging
+import random
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes, Updater
 from telegram import Update, Bot
 from dotenv import load_dotenv
@@ -58,8 +59,11 @@ async def bundesliga_table(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 def handle_response(text: str):
     processed: str = text.lower()
+
     football_keywords_fixtures = ["matches", "match", "schedule",
                                   "fixtures", "next match", "next game", "today match", "today game"]
+    greetings = ["Hello!", "Hey there!", "Hi!",
+                 "Greetings!", "Howdy!", "Good day!"]
     greeting_keywords = ["greetings", "hello", "hi", "good morning",
                          "good evening", "good afternoon", "howdy", "hey"]
     jokes_keywords = ["joke", "jokes", "a joke", "another joke", "tell me a joke", "crack a joke",
@@ -67,6 +71,8 @@ def handle_response(text: str):
 
     football_keywords_standings = ["league position", "standings",
                                    "table", "top of the league", "teams", "first place", "bottom of the league", "bottom league"]
+    pleasanties_keywords = ["how are you", "what's up", "what is going on"]
+
     res = any(
         footy_table_response in processed for footy_table_response in football_keywords_standings)
     if res:
@@ -87,7 +93,7 @@ def handle_response(text: str):
             return f"{football.get_fixtures(football.UCL)}"
         elif "ucl" in processed:
             return f"{football.get_fixtures(football.UCL)}"
-        elif "la liga" in processed:
+        elif "la liga" or "laliga" in processed:
             return f"{football.get_fixtures(football.LA_LIGA)}"
         elif "serie a" in processed:
             return f"{football.get_fixtures(football.SERIE_A)}"
@@ -103,11 +109,18 @@ def handle_response(text: str):
             return f"{football.get_fixtures(football.FA_CUP)}"
     for response in greeting_keywords:
         if response in processed:
-            return "Hi there! How can I assist you today?"
+            selected_greeting = random.choice(greetings)
+            return f"{selected_greeting} there! How can I assist you today?"
     for joke_response in jokes_keywords:
         if joke_response in processed:
             return f"{the_joke()}"
-    return "i don't understand"
+
+    for pleasanties in pleasanties_keywords:
+        if pleasanties in processed:
+            return "I am doing fine, Thank you"
+    if "greatest footballer" in processed:
+        return "Cristiano Ronaldo is the greatest footballer of all time"
+    return "i don't understand, please refer to help, to know what i can do"
 
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):

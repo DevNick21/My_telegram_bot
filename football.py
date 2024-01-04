@@ -8,7 +8,7 @@ load_dotenv()
 year = int(dt.now().strftime("%Y"))
 month = int(dt.now().strftime("%m"))
 if month < 6:
-    year += 1
+    year -= 1
 year = str(year)
 
 
