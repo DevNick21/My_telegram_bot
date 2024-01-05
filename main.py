@@ -21,10 +21,10 @@ logging.basicConfig(
 football = Football()
 
 
-def the_joke():
+def get_joke():
     joke = Jokes()
-    the_joke = joke.generate_normal_jokes()
-    return the_joke
+    main = joke.normal_joke()
+    return main
 
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -38,7 +38,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def jokes(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(the_joke())
+    await update.message.reply_text(get_joke())
 
 
 async def premier_league_table(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -60,21 +60,21 @@ async def bundesliga_table(update: Update, context: ContextTypes.DEFAULT_TYPE):
 def handle_response(text: str):
     processed: str = text.lower()
 
-    football_keywords_fixtures = ["matches", "match", "schedule",
-                                  "fixtures", "next match", "next game", "today match", "today game"]
-    greetings = ["Hello!", "Hey there!", "Hi!",
+    FIXTURES_WORDS = ["matches", "match", "schedule",
+                      "fixtures", "next match", "next game", "today match", "today game"]
+    GREETINGS = ["Hello!", "Hey there!", "Hi!",
                  "Greetings!", "Howdy!", "Good day!"]
-    greeting_keywords = ["greetings", "hello", "hi", "good morning",
+    GREETING_KEYWORDS = ["greetings", "hello", "hi", "good morning",
                          "good evening", "good afternoon", "howdy", "hey"]
-    jokes_keywords = ["joke", "jokes", "a joke", "another joke", "tell me a joke", "crack a joke",
+    JOKES_KEYWORDS = ["joke", "jokes", "a joke", "another joke", "tell me a joke", "crack a joke",
                       "give me a good joke", "i wan laugh", "make i laugh small", "abeg yarn me joke", "wetin dey funny", "wey go burst my belle", "Laugh dey hungry me", "say something funny",]
 
-    football_keywords_standings = ["league position", "standings",
-                                   "table", "top of the league", "teams", "first place", "bottom of the league", "bottom league"]
-    pleasanties_keywords = ["how are you", "what's up", "what is going on"]
+    STANDINGS_WORDS = ["league position", "standings",
+                       "table", "top of the league", "teams", "first place", "bottom of the league", "bottom league"]
+    PLEASANTIES_KEYWORDS = ["how are you", "what's up", "what is going on"]
 
     res = any(
-        footy_table_response in processed for footy_table_response in football_keywords_standings)
+        footy_table_response in processed for footy_table_response in STANDINGS_WORDS)
     if res:
         if "premier league" in processed:
             return f"{football.get_table(football.PL)}"
@@ -85,7 +85,7 @@ def handle_response(text: str):
         elif "bundesliga" in processed:
             return f"{football.get_table(football.BUNDESLIGA)}"
     res_fix = any(
-        footy_response in processed for footy_response in football_keywords_fixtures)
+        footy_response in processed for footy_response in FIXTURES_WORDS)
     if res_fix:
         if "premier league" in processed:
             return f"{football.get_fixtures(football.PL)}"
@@ -107,15 +107,15 @@ def handle_response(text: str):
             return f"{football.get_fixtures(football.EUROPA)}"
         elif "fa cup" in processed:
             return f"{football.get_fixtures(football.FA_CUP)}"
-    for response in greeting_keywords:
+    for response in GREETING_KEYWORDS:
         if response in processed:
-            selected_greeting = random.choice(greetings)
+            selected_greeting = random.choice(GREETINGS)
             return f"{selected_greeting} there! How can I assist you today?"
-    for joke_response in jokes_keywords:
+    for joke_response in JOKES_KEYWORDS:
         if joke_response in processed:
-            return f"{the_joke()}"
+            return f"{get_joke()}"
 
-    for pleasanties in pleasanties_keywords:
+    for pleasanties in PLEASANTIES_KEYWORDS:
         if pleasanties in processed:
             return "I am doing fine, Thank you"
     if "greatest footballer" in processed:
@@ -145,6 +145,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def error(update: Update, context: ContextTypes.DEFAULT_TYPE):
     print(f"Update{update} caused an error{context.error}")
+
+    await update.message.reply_text("Sorry, Something went wrong\nPlease try again later")
 
 
 if __name__ == "__main__":

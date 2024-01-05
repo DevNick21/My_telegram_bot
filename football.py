@@ -1,4 +1,4 @@
-from datetime import datetime as dt
+from datetime import datetime as dt, timedelta
 import requests
 import os
 import pandas
@@ -13,7 +13,7 @@ year = str(year)
 
 
 day = dt.now().strftime("%Y-%m-%d")
-
+seven_days_ago = (dt.now() - timedelta(days=7)).strftime("%Y-%m-%d")
 
 headers = {
     "X-RapidAPI-Key": os.getenv("X-RapidAPI-Key"),
@@ -32,36 +32,64 @@ class Football:
         self.EUROPA = 3
         self.UCL = 2
         self.SEASON = year
-        self.FOOTBAL_URL = "https://api-football-v1.p.rapidapi.com/v3/"
+        self.FOOTBALL_URL = "https://api-football-v1.p.rapidapi.com/v3/"
 
     def get_fixtures(self, league):
-        fixtures = ""
         querystring = {"date": day, "league": league, "season": self.SEASON}
-        res = requests.get(url=self.FOOTBAL_URL + "fixtures",
+        res = requests.get(url=f"{self.FOOTBALL_URL}fixtures",
                            headers=headers, params=querystring)
         res.raise_for_status()
         data = res.json()
-        fixture_list = data["response"]
-        for fix in fixture_list:
-            time = dt.fromisoformat(fix["fixture"]["date"]).strftime("%H:%M")
-            referee = fix["fixture"]["referee"]
-            venue = fix["fixture"]["venue"]["name"]
-            status = fix["fixture"]["status"]["long"]
-            elapsed = fix["fixture"]["status"]["elapsed"]
-            comp = fix["league"]["name"]
-            season = fix["league"]["season"]
-            gameweek = fix["league"]["round"]
-            home_team = fix["teams"]["home"]["name"]
-            away_team = fix["teams"]["away"]["name"]
-            home_goals = fix["goals"]["home"]
-            away_goals = fix["goals"]["away"]
-            fixtures += f"Match Time: {time}\nReferee in Charge: {referee}\nVenue: {venue}\nStatus: {status}\nTime Elapsed: {elapsed}\nCompetition: {comp} - Season {season} - Round {gameweek}\n{home_team}- {home_goals}:{away_goals} -{away_team}\n\n\n"
-        return fixtures
+        fixture_list = data.get("response", [])
+
+        def get_fixture_info(fixtures):
+            return "\n\n\n\n".join([
+                f"{dt.fromisoformat(fix['fixture']['date']).strftime('%B %d %Y')}\n\n"
+                f"Match Time: {dt.fromisoformat(fix['fixture']['date']).strftime('%H:%M')}\n"
+                f"Referee in Charge: {fix['fixture']['referee']}\n"
+                f"Venue: {fix['fixture']['venue']['name']}\n"
+                f"Status: {fix['fixture']['status']['long']}\n"
+                f"Time Elapsed: {fix['fixture']['status']['elapsed']}\n"
+                f"Competition: {fix['league']['name']} - Season {fix['league']['season']} - {fix['league']['round']} Gameweek\n"
+                f"{fix['teams']['home']['name']} - {fix['goals']['home']}:{fix['goals']['away']} - {fix['teams']['away']['name']}"
+                for fix in fixtures
+            ])
+        if not fixture_list:
+            querystring = {"league": league, "season": self.SEASON,
+                           "from": seven_days_ago, "to": day}
+            res = requests.get(url=self.FOOTBALL_URL + "fixtures",
+                               headers=headers, params=querystring)
+            res.raise_for_status()
+            old_fixtures = res.json().get("response", [])
+            return f"There are no fixtures today in the league but here are the fixtures from last week.\n\n\n\n\n{get_fixture_info(old_fixtures)}"
+        else:
+            return get_fixture_info(fixture_list)
 
     def get_table(self, league):
+        team_name_replacements = {
+            "Manchester": "Man",
+            "Nottingham": "Nott",
+            "Crystal Palace": "Palace",
+            "Sheffield Utd": "Sheffield",
+            "Rayo Vallecano": "Rayo",
+            "Real Sociedad": "Sociedad",
+            "Borussia Dortmund": "Dortmund",
+            "Union Berlin": "Un-Berlin",
+            "Eintracht Frankfurt": "Eintracht",
+            "Bayern Munich": "Bayern",
+            "Bayer Leverkusen": "Leverkusen",
+            "Werder Bremen": "Bremen",
+            "VfL Wolfsburg": "Wolfsburg",
+            "Borussia Monchengladbach": "B-Gladbach",
+            "1899 Hoffenheim": "Hoffenheim",
+            "VfB Stuttgart": "Stuttgart",
+            "SV Darmstadt 98": "Darmstadt",
+            "Atletico Madrid": "Atletico",
+            "FC Heidenheim": "Heidenheim"
+        }
         standings = ""
         querystring = {"league": league, "season": self.SEASON}
-        res = requests.get(url=self.FOOTBAL_URL + "standings",
+        res = requests.get(url=self.FOOTBALL_URL + "standings",
                            headers=headers, params=querystring)
         res.raise_for_status()
         data = res.json()
@@ -74,44 +102,9 @@ class Football:
         for team in league_member:
             rank = team["rank"]
             team_name = team["team"]["name"]
-            if "Manchester" in team_name:
-                team_name = team_name.replace("Manchester", "Man")
-            elif "Nottingham" in team_name:
-                team_name = team_name.replace("Nottingham", "Nott")
-            elif "Crystal Palace" in team_name:
-                team_name = team_name.replace("Crystal", "")
-            elif "Sheffield Utd" in team_name:
-                team_name = team_name.replace("Sheffield Utd", "Sheffield")
-            elif "Rayo Vallecano" in team_name:
-                team_name = team_name.replace("Rayo Vallecano", "Rayo")
-            elif "Real Sociedad" in team_name:
-                team_name = team_name.replace("Real Sociedad", "Sociedad")
-            elif "Borussia Dortmund" in team_name:
-                team_name = team_name.replace("Borussia Dortmund", "Dortmund")
-            elif "Union Berlin" in team_name:
-                team_name = team_name.replace("Union Berlin", "Un-Berlin")
-            elif "Eintracht Frankfurt" in team_name:
-                team_name = team_name.replace(
-                    "Eintracht Frankfurt", "Eintracht")
-            elif "Bayern Munich" in team_name:
-                team_name = team_name.replace("Bayern Munich", "Bayern")
-            elif "Bayer Leverkusen" in team_name:
-                team_name = team_name.replace("Bayer Leverkusen", "Leverkusen")
-            elif "Werder Bremen" in team_name:
-                team_name = team_name.replace("Werder Bremen", "Bremen")
-            elif "VfL Wolfsburg" in team_name:
-                team_name = team_name.replace("VfL Wolfsburg", "Wolfsburg")
-            elif "Borussia Monchengladbach" in team_name:
-                team_name = team_name.replace(
-                    "Borussia Monchengladbach", "B-Gladbach")
-            elif "1899 Hoffenheim" in team_name:
-                team_name = team_name.replace("1899 Hoffenheim", "Hoffenheim")
-            elif "VfB Stuttgart" in team_name:
-                team_name = team_name.replace("VfB Stuttgart", "Stuttgart")
-            elif "SV Darmstadt 98" in team_name:
-                team_name = team_name.replace("SV Darmstadt 98", "Darmstadt")
-            elif "FC Heidenheim" in team_name:
-                team_name = team_name.replace("FC Heidenheim", "Heidenheim")
+
+            for find, replace in team_name_replacements.items():
+                team_name = team_name.replace(find, replace)
             team_points = team["points"]
             goal_diff = team["goalsDiff"]
             match_played = team["all"]["played"]
@@ -127,3 +120,7 @@ class Football:
         league_standings = pandas.concat(combined_df)
         output = standings+league_standings.to_string()
         return output
+
+
+ball = Football()
+print(ball.get_fixtures(ball.PL))

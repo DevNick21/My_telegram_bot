@@ -12,7 +12,7 @@ class Jokes:
     def normal_joke(self):
         normals = [self.generate_normal_jokes, self.generate_joke]
         choice = random.choice(normals)
-        return choice
+        return choice()
 
     def generate_normal_jokes(self):
         res = requests.get(NORMAL_JOKE_API)
