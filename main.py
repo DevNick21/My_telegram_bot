@@ -93,7 +93,7 @@ def handle_response(text: str):
             return f"{football.get_fixtures(football.UCL)}"
         elif "ucl" in processed:
             return f"{football.get_fixtures(football.UCL)}"
-        elif "la liga" or "laliga" in processed:
+        elif "la liga" in processed:
             return f"{football.get_fixtures(football.LA_LIGA)}"
         elif "serie a" in processed:
             return f"{football.get_fixtures(football.SERIE_A)}"
